@@ -30,11 +30,11 @@ runs:
         ls ./cache/step_outputs
       shell: bash
 
-    - name: Build ${{ matrix.build-name }}
-      shell: bash
-      run: |
-        ${{ inputs.command }} --build-root-dir ./cache
-        ls ./cache
+#    - name: Build ${{ matrix.build-name }}
+#      shell: bash
+#      run: |
+#        ${{ inputs.command }} --build-root-dir ./cache
+#        ls ./cache
 
     - name: Save all cached steps, if needed.
       uses: ./.github/actions/cache-step
