@@ -29,7 +29,7 @@ runs:
       shell: bash
       run: |
           ${{ inputs.command }} --build-root-dir ./cache
-        ls ./cache
+          ls ./cache
 
     - run: |
         ls ./cache/step_outputs
