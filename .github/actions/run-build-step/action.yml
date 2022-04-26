@@ -29,10 +29,10 @@ runs:
       shell: bash
       run: |
           echo "------"
-          ls ./cache
+          ls ./cache/step_outputs
           ${{ inputs.command }} --build-root-dir ./cache
           echo "+++++"
-          ls ./cache
+          ls ./cache/step_outputs
 
     - run: |
         ls ./cache/step_outputs
