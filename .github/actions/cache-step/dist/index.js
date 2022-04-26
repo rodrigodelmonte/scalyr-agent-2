@@ -57964,7 +57964,7 @@ async function performDeployment() {
     const cacheDir = core.getInput("cache-dir");
     const action = core.getInput("action");
 
-    console.log(`0000 ${steps_ids_json_str}`)
+    console.log(`0000 ${steps_ids_json_str}`);
     if (!fs.existsSync(cacheDir)) {
         fs.mkdirSync(cacheDir,{recursive: true});
     }

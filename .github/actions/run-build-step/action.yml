@@ -15,6 +15,7 @@ runs:
       id: get-steps-ids
       shell: bash
       run: |
+        echo "$(${{ inputs.command }} --show-all-used-steps-ids)"
         echo "::set-output name=cacheable_steps_ids::$(${{ inputs.command }} --show-all-used-steps-ids)"
 
     - name: Download all cached steps that are used by final step.
@@ -23,6 +24,10 @@ runs:
         step-ids-json: ${{ steps.get-steps-ids.outputs.cacheable_steps_ids }}
         action: upload
         cache-dir: ./cache
+
+    - run: |
+        ls ./cache/step_outputs
+      shell: bash
 
     - name: Build ${{ matrix.build-name }}
       shell: bash
