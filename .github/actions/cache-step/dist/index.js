@@ -57964,6 +57964,7 @@ async function performDeployment() {
     const cacheDir = core.getInput("cache-dir");
     const action = core.getInput("action");
 
+    console.log(`0000 ${steps_ids_json_str}`)
     if (!fs.existsSync(cacheDir)) {
         fs.mkdirSync(cacheDir,{recursive: true});
     }
@@ -57971,7 +57972,8 @@ async function performDeployment() {
     const step_ids = JSON.parse(steps_ids_json_str);
 
     for (let id of step_ids) {
-        console.log(id);
+
+        console.log(`1111 ${id}`);
         const stepDir = path.join(cacheDir, "step_outputs", id);
         const cacheKey = `${id}-${cacheVersionSuffix}`;
         await handleStep(
