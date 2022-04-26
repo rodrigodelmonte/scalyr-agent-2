@@ -25,6 +25,13 @@ runs:
         action: upload
         cache-dir: ./cache
 
+    - shell: bash
+      run: |
+        apt update
+        apt install tree
+        tree ./cache
+
+
     - name: Build ${{ matrix.build-name }}
       shell: bash
       run: |
