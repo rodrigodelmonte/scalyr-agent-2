@@ -15,8 +15,8 @@ runs:
       id: get-steps-ids
       shell: bash
       run: |
-        echo "222333 $(${{ inputs.command }} --show-all-used-steps-ids)"
-        #echo "::set-output name=cacheable_steps_ids::$(${{ inputs.command }} --show-all-used-steps-ids)"
+        #echo "222333 $(${{ inputs.command }} --show-all-used-steps-ids)"
+        echo "::set-output name=cacheable_steps_ids::$(${{ inputs.command }} --show-all-used-steps-ids)"
 
     - name: Download all cached steps that are used by final step.
       uses: ./.github/actions/cache-step
