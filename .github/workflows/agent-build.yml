@@ -76,7 +76,7 @@ jobs:
           SCALYR_API_KEY: ${{ secrets.SCALYR_PROD_CLOUDTECH_TESTING_WRITE_TOKEN }}
         with:
           command: python3 tests/package_tests/run_package_test.py package-test \
-            "${{ matrix.image-type }}-${{ matrix.image-distro-name }}-test"
+            "${{ matrix.image-type }}-${{ matrix.image-distro-name }}-test" \
             --name-suffix "_${{ github.run_number }}${{ github.run_attempt }}"
 
       - name: Notify Slack on Failure
