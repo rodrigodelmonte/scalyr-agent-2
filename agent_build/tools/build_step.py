@@ -785,6 +785,8 @@ class FinalStep(BuildStep):
             used_steps: List[IntermediateBuildStep]
     ):
         self._used_steps = used_steps or []
+        self._build_root: Optional[pl.Path] = None
+
 
     @property
     def all_used_cacheable_steps(self) -> List[IntermediateBuildStep]:
@@ -803,6 +805,8 @@ class FinalStep(BuildStep):
         pass
 
     def run(self, build_root: pl.Path):
+
+        self._build_root = build_root
         for s in self._used_steps:
             s.run(build_root=build_root)
 

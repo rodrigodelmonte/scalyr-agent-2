@@ -289,6 +289,9 @@ class DockerImagePackageTest(FinalStep):
                         "--tag",
                         "debug",
                         "--push",
+                        "--build-root-dir",
+                        str(self._build_root)
+
                     ],
                     cwd=str(__SOURCE_ROOT__),
                 )
