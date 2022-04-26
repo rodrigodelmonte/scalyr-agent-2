@@ -7,7 +7,7 @@ set -e
 
 # orjson is wheel is not available for armv7 + musl yet so we exclude it here. We can't exclude it
 # with pip environment markers since they are not specific enough.
-if [ "$TARGETVARIANT" = "v7" ] && [ "$BASE_IMAGE_SUFFIX" = "alpine" ]; then
+if [ "$TARGETVARIANT" = "v7" ] && [ "$PYTHON_BASE_IMAGE_TYPE" = "alpine" ]; then
   sed -i '/^orjson/d' agent_build/requirement-files/main-requirements.txt;
 fi
 
