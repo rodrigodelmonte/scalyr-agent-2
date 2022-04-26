@@ -77,11 +77,11 @@ jobs:
         with:
           command: python3 tests/package_tests/run_package_test.py package-test "${{ matrix.image-type }}-${{ matrix.image-distro-name }}-test" --name-suffix "_${{ github.run_number }}${{ github.run_attempt }}"
 
-      - name: Build ${{ matrix.build-name }}
-        shell: bash
-        run: |
-          python3 tests/package_tests/run_package_test.py package-test "${{ matrix.image-type }}-${{ matrix.image-distro-name }}-test" --name-suffix "_${{ github.run_number }}${{ github.run_attempt }}" --build-root-dir ./cache
-          ls ./cache
+#      - name: Build ${{ matrix.build-name }}
+#        shell: bash
+#        run: |
+#          python3 tests/package_tests/run_package_test.py package-test "${{ matrix.image-type }}-${{ matrix.image-distro-name }}-test" --name-suffix "_${{ github.run_number }}${{ github.run_attempt }}" --build-root-dir ./cache
+#          ls ./cache
 
       - name: Notify Slack on Failure
         # NOTE: github.ref is set to pr ref (and not branch name, e.g. refs/pull/28/merge) for pull

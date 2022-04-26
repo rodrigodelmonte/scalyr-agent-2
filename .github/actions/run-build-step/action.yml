@@ -25,6 +25,12 @@ runs:
         action: upload
         cache-dir: ./cache
 
+    - name: Build ${{ matrix.build-name }}
+      shell: bash
+      run: |
+          ${{ inputs.command }} --build-root-dir ./cache
+        ls ./cache
+
     - run: |
         ls ./cache/step_outputs
       shell: bash
