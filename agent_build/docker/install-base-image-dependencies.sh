@@ -25,6 +25,7 @@ echo 'manylinux2014_compatible = True' > /usr/local/lib/python3.8/_manylinux.py
 
 # Install agent dependencies.
 pip3 install --upgrade pip
+PATH="/root/.cargo/bin:${PATH}"
 pip3 --no-cache-dir install --root /tmp/dependencies -r agent_build/requirement-files/docker-image-requirements.txt
 
 # Clean up files which were installed to use manylinux2014 workaround
