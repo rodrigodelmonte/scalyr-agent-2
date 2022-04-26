@@ -65,7 +65,7 @@ jobs:
           driver-opts: network=host
 
       - name: Start minikube for the test of the kubernetes build
-        if: matrix.image-type == 'k8s'
+        if: contains(matrix.image-type, 'k8s')
         shell: bash
         run: |
           minikube start
