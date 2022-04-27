@@ -4,14 +4,14 @@ import pathlib as pl
 import sys
 from typing import Type, Dict
 
-from agent_build.tools.build_step import StepsRunner
-from agent_build.package_build_steps import IMAGE_BUILDS
-from tests.package_tests.all_package_tests import DOCKER_IMAGE_TESTS
-
 _SOURCE_ROOT = pl.Path(__file__).parent.parent.parent.parent
 # This file can be executed as script. Add source root to the PYTHONPATH in order to be able to import
 # local packages. All such imports also have to be done after that.
 sys.path.append(str(_SOURCE_ROOT))
+
+from agent_build.tools.build_step import StepsRunner
+from agent_build.package_build_steps import IMAGE_BUILDS
+from tests.package_tests.all_package_tests import DOCKER_IMAGE_TESTS
 
 if __name__ == '__main__':
 
