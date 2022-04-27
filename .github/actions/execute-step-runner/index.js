@@ -141,7 +141,7 @@ async function executeRunner() {
     // has to reuse them.
     child_process.execFileSync(
         "python3",
-        [executeStepsRunnerScriptPath, stepsRunnerName, "execute"],
+        [executeStepsRunnerScriptPath, stepsRunnerName, "execute", "--build-root-dir", buildRootDir],
         {stdio: 'inherit'}
     );
 
