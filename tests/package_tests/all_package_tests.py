@@ -26,7 +26,7 @@ from tests.package_tests.internals import docker_test, k8s_test
 from agent_build.tools import build_in_docker
 from agent_build.tools import common
 from agent_build.tools.build_step import SimpleBuildStep, ScriptBuildStep
-from agent_build.package_build_steps import IMAGE_BUILDS, BuildStep, StepsRunner, ImageBuild
+from agent_build.package_build_steps import IMAGE_BUILDS, StepsRunner, ImageBuild
 
 _PARENT_DIR = pl.Path(__file__).parent
 __SOURCE_ROOT__ = _PARENT_DIR.parent.parent.absolute()
@@ -101,7 +101,6 @@ ALL_PACKAGE_TESTS: Dict[str, "Test"] = {}
 #         """
 #         return f"{self.package_builder.name}_{self._base_name}".replace("-", "_")
 
-
 class DockerImagePackageTest(StepsRunner):
     IMAGE_BUILD_CLS: Type[ImageBuild]
     """
@@ -131,7 +130,7 @@ class DockerImagePackageTest(StepsRunner):
         self._scalyr_api_key = scalyr_api_key
         self._name_suffix = name_suffix
 
-        self._build = build_cls(
+        self._build = self._build_cls(
             registry=self._registry_host,
             tags=self._tags,
             push=True
@@ -197,9 +196,9 @@ class DockerImagePackageTest(StepsRunner):
                         )
 
                     # Check if the tested image contains needed distribution.
-                    if "debian" in self._build_name:
+                    if "debian" in self._build.NAME:
                         expected_os_name = "debian"
-                    elif "alpine" in self._build_name:
+                    elif "alpine" in self._build.NAME:
                         expected_os_name = "alpine"
                     else:
                         raise AssertionError(
@@ -250,7 +249,7 @@ class DockerImagePackageTest(StepsRunner):
                     f"'{arch.as_docker_platform}'"
                 )
 
-                if "k8s" in self._build_name:
+                if "k8s" in self._build.NAME:
                     k8s_test.run(
                         image_name=local_registry_image_name,
                         architecture=arch,
@@ -309,7 +308,7 @@ for build_name in IMAGE_BUILDS:
     class ImageTest(DockerImagePackageTest):
         NAME = test_name
         IMAGE_BUILD_CLS = build_cls
-        STATIC_STEPS = [*build_cls.STATIC_STEPS]
+        CACHEABLE_STEPS = [*build_cls.CACHEABLE_STEPS]
 
 
     DOCKER_IMAGE_TESTS[test_name] = ImageTest

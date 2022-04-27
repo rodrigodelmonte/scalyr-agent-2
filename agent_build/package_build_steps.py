@@ -14,8 +14,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 from agent_build.tools import build_step
 from agent_build.tools import constants, common
-from agent_build.tools.build_step import StepCICDSettings, BuildStep, StepsRunner
-from agent_build.tools.constants import AGENT_BUILD_OUTPUT
+from agent_build.tools.build_step import StepCICDSettings, StepsRunner
 
 _AGENT_BUILD_PATH = constants.SOURCE_ROOT / "agent_build"
 _AGENT_REQUIREMENTS_PATH = _AGENT_BUILD_PATH / "requirement-files"
@@ -29,6 +28,10 @@ ALL_CACHEABLE_STEPS = []
 
 
 class PrepareBuildxBuilderStep(build_step.SimpleBuildStep):
+    """
+    This step is needed to prepare a docker buildx builder for further docker image builder step.
+    # Without appropriately configured buildx builder, next step won't be able to build multi-arch images.
+    """
     def __init__(self):
         super(PrepareBuildxBuilderStep, self).__init__(
             name="prepare_buildx_builder",
@@ -81,7 +84,7 @@ _DOCKER_IMAGE_DISTRO_TO_IMAGE_NAME = {
 class DockerContainerBaseBuildStep(build_step.ScriptBuildStep):
     TRACKED_FILE_GLOBS = [
         _AGENT_BUILD_DOCKER_PATH / "Dockerfile.base",
-        _AGENT_BUILD_DOCKER_PATH / "install-base-image-dependencies.sh",
+        _AGENT_BUILD_DOCKER_PATH / "install-base-image-agent-dependencies.sh",
         _AGENT_BUILD_DOCKER_PATH / "install-base-image-common-dependencies.sh",
         _AGENT_BUILD_DOCKER_PATH / "install-base-image-build-dependencies.sh",
         _AGENT_BUILD_DOCKER_PATH / "install-base-image-rust.sh",
@@ -96,7 +99,16 @@ class DockerContainerBaseBuildStep(build_step.ScriptBuildStep):
             platforms_to_build: List[str],
             base_image_distro_type: DockerBaseImageDistroType,
     ):
+        """
+        :param platforms_to_build: List of docker platforms that this base image has to support.
+        :param base_image_distro_type: One of the py:class:`DockerBaseImageDistroType` type,
+            to specify which distribution to use as a base for this image.
+        """
+
+        # For this step we have to have a special buildx builder, so we
+        # specify a base step that creates that builder for this step.
         base_step = PrepareBuildxBuilderStep()
+
         self.base_image_distro_type = base_image_distro_type
         self.platforms_to_build = platforms_to_build
 
@@ -201,6 +213,7 @@ class ImageBuild(StepsRunner):
         super(ImageBuild, self).__init__(
             used_steps=[
                 prepare_buildx_builder_step,
+                self._base_image_step
             ]
         )
 
@@ -243,7 +256,7 @@ class ImageBuild(StepsRunner):
             "build",
             *tag_options,
             "-f",
-            str(constants.SOURCE_ROOT / "agent_build/docker/Dockerfile"),
+            str(constants.SOURCE_ROOT / "agent_build/docker/Dockerfile.final"),
             "--build-arg",
             f"PYTHON_BASE_IMAGE={_DOCKER_IMAGE_DISTRO_TO_IMAGE_NAME[self._base_image_step.base_image_distro_type]}",
             "--build-arg",
@@ -285,47 +298,49 @@ for distro_type in DockerBaseImageDistroType:
         class Build(ImageBuild):
             NAME = build_name
             AGENT_BASE_IMAGE_BUILDER_STEP = step
-            STATIC_STEPS = [step]
+            CACHEABLE_STEPS = [step]
             DOCKER_IMAGE_TYPE = docker_image_type
             RESULT_IMAGE_NAMES = _DOCKER_IMAGE_TYPES_TO_IMAGE_RESULT_NAMES[docker_image_type]
 
         IMAGE_BUILDS[build_name] = Build
 
+a=10
 
-if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser()
-
-    subparsers = parser.add_subparsers(dest="command", required=True)
-
-    run_step_subparser = subparsers.add_parser("run-step")
-
-    cacheable_steps = {s.id: s for s in ALL_CACHEABLE_STEPS}
-    run_step_subparser.add_argument("ids", choices=cacheable_steps.keys())
-    run_step_subparser.add_argument(
-        "--build-root_dir",
-        dest="build_root_dir",
-        required=False
-    )
-
-    args = parser.parse_args()
-
-    if args.command == "run-steps":
-        step_ids = json.loads(args.ids)
-
-        for step_id in step_ids:
-            if args.id not in cacheable_steps:
-                print(f"Step with id {step_id} is not found.", file=sys.stderr)
-                exit(1)
-
-        if args.build_root_dir:
-            build_root_path = pl.Path(args.build_root_dir)
-        else:
-            build_root_path = AGENT_BUILD_OUTPUT
-
-        for step_id in step_ids:
-            step = cacheable_steps[step_id]
-            step.run(
-                build_root=build_root_path
-            )
-
+# if __name__ == '__main__':
+#
+#     parser = argparse.ArgumentParser()
+#
+#     subparsers = parser.add_subparsers(dest="command", required=True)
+#
+#     run_step_subparser = subparsers.add_parser("run-step")
+#
+#     cacheable_steps = {s.id: s for s in ALL_CACHEABLE_STEPS}
+#     run_step_subparser.add_argument("ids", choices=cacheable_steps.keys())
+#     run_step_subparser.add_argument(
+#         "--build-root_dir",
+#         dest="build_root_dir",
+#         required=False
+#     )
+#
+#     args = parser.parse_args()
+#
+#     if args.command == "run-steps":
+#         step_ids = json.loads(args.ids)
+#
+#         for step_id in step_ids:
+#             if args.id not in cacheable_steps:
+#                 print(f"Step with id {step_id} is not found.", file=sys.stderr)
+#                 exit(1)
+#
+#         if args.build_root_dir:
+#             build_root_path = pl.Path(args.build_root_dir)
+#         else:
+#             build_root_path = AGENT_BUILD_OUTPUT
+#
+#         for step_id in step_ids:
+#             step = cacheable_steps[step_id]
+#             step.run(
+#                 build_root=build_root_path
+#             )
+#

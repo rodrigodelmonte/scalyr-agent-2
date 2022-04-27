@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#
-#
-#
 
 """
 This script is used in the build step that builds base image for Agent's Docker image.
@@ -92,6 +89,26 @@ def main(
         f"PYTHON_BASE_IMAGE_TYPE={python_base_image_type}",
         "--build-arg",
         f"PYTHON_BASE_IMAGE_NAME={python_base_image_name}",
+        "--build-arg",
+        f"COVERAGE_VERSION={coverage_version}",
+        *platform_options,
+        str(SOURCE_ROOT)
+    ])
+
+    # Build testing version of the base image.
+    subprocess.check_call([
+        "docker",
+        "buildx",
+        "build",
+        "-t",
+        f"{result_image_final_name}-testing",
+        "-f",
+        f"{SOURCE_ROOT}/agent_build/docker/Dockerfile.base-testing",
+        "--push",
+        "--build-arg",
+        f"BASE_IMAGE={result_image_final_name}",
+        "--build-arg",
+        f"COVERAGE_VERSION={coverage_version}",
         *platform_options,
         str(SOURCE_ROOT)
     ])

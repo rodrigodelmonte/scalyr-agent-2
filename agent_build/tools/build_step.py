@@ -769,7 +769,7 @@ class InstallTestRequirementsDeploymentStep(ScriptBuildStep):
 
 
 class StepsRunner:
-    STATIC_STEPS: List['BuildStep'] = []
+    CACHEABLE_STEPS: List['BuildStep'] = []
     NAME: str
 
     def __init__(
@@ -777,17 +777,13 @@ class StepsRunner:
             used_steps: List[BuildStep] = None
     ):
 
-        used_steps = used_steps or []
-        self._used_steps = [
-            *type(self).STATIC_STEPS,
-            *used_steps
-        ]
+        self._used_steps = used_steps or []
         self._build_root: Optional[pl.Path] = None
 
     @classmethod
     def all_used_cacheable_steps(cls) -> List[BuildStep]:
         result_steps = []
-        for s in cls.STATIC_STEPS:
+        for s in cls.CACHEABLE_STEPS:
             result_steps.extend(s.all_used_cacheable_steps)
 
         return result_steps

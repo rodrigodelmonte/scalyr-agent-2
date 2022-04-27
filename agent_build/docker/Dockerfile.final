@@ -76,14 +76,3 @@ FROM build-$DOCKER_IMAGE_TYPE as scalyr
 MAINTAINER Scalyr Inc <support@scalyr.com>
 
 CMD ["/usr/sbin/scalyr-agent-2", "--no-fork", "--no-change-user", "start"]
-
-
-## Result image stage for testing.
-#FROM build-$BUILD_TYPE as scalyr-testing
-#MAINTAINER Scalyr Inc <support@scalyr.com>
-## Since test version of the image uses coverage, add command that runs the Agent with enabled coverage.
-#CMD ["coverage", "run", "--branch", "/usr/share/scalyr-agent-2/py/scalyr_agent/agent_main.py", "--no-fork", "--no-change-user", "start"]
-
-## Use stage with needed mode as a final image.
-#FROM scalyr-$MODE as scalyr
-#MAINTAINER Scalyr Inc <support@scalyr.com>

@@ -17,16 +17,12 @@
 #   If there are any dependencies, imports or files which are used by this script, then also add them
 #   to the `TRACKED_FILE_GLOBS` attribute of the step class.
 
-import pathlib as pl
-import os
-
 # Here are some environment variables, which are pre-defined for all steps:
-# Path to the source root of the project.
-SOURCE_ROOT = pl.Path(os.environ["SOURCE_ROOT"])
-# Path where the step has to save its results.
-STEP_OUTPUT_PATH = pl.Path(os.environ["STEP_OUTPUT_PATH"])
+#   SOURCE_ROOT - path to the source root of the project.
+#   STEP_OUTPUT_PATH - path where the step has to save its results.
 
 # If step has another steps that it depends on, then it can access their output directories from command line arguments.
 # The order matches the order which is defined in the step class.
 # Uncomment and edit this, if needed.
-# DEP_STEP1_OUTPUT, DEP_STEP2_OUTPUT = sys.argv[1:]
+# DEP_STEP1_OUTPUT=$1,
+# DEP_STEP2_OUTPUT=$2

@@ -1,3 +1,22 @@
+# Copyright 2014-2022 Scalyr Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""
+This script is used by the 'Dockerfile' file to produce a tarball with all files that are used in the
+Agent docker images.
+"""
+
 import argparse
 import pathlib as pl
 import tarfile
@@ -38,12 +57,17 @@ if __name__ == '__main__':
 
     config_path = constants.SOURCE_ROOT / "docker" / args.config
 
+    # Create common LFS agent filesystem.
     prepare_agent_filesystem.build_linux_lfs_agent_files(
         copy_agent_source=True,
         output_path=agent_filesystem_root_path,
         config_path=config_path,
     )
 
+    # Need to create some docker specific directories.
+    pl.Path(agent_filesystem_root_path / "var/log/scalyr-agent-2/containers").mkdir()
+
+    # Put everything into a tarball.
     container_tarball_path = output_path / "scalyr-agent.tar.gz"
 
     # Do a manual walk over the contents of root so that we can use `addfile` to add the tarfile... which allows
