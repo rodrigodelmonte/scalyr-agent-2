@@ -75,6 +75,7 @@ jobs:
           #command: python3 build_package_new.py "${{ matrix.image-type }}-${{ matrix.image-distro-name }}"
           #python3 tests/package_tests/run_package_test.py package-test "${{ matrix.image-type }}-${{ matrix.image-distro-name }}-test" --name-suffix "_${{ github.run_number }}${{ github.run_attempt }}"
           runner-name: ${{ matrix.image-type }}-${{ matrix.image-distro-name }}
+          cache-dir: ./cache
 
 #      - name: Build ${{ matrix.build-name }}
 #        shell: bash
