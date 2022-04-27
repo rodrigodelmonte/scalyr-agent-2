@@ -1,3 +1,25 @@
+# Copyright 2014-2022 Scalyr Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#
+#
+#
+
+"""
+This script is used in the build step that builds base image for Agent's Docker image.
+"""
+
 from typing import List
 import os
 import subprocess
@@ -6,7 +28,6 @@ import json
 
 SOURCE_ROOT = pl.Path(os.environ["SOURCE_ROOT"])
 STEP_OUTPUT_PATH = pl.Path(os.environ["STEP_OUTPUT_PATH"])
-ARCHITECTURE_INFO_FILE_OUTPUT_PATH =  STEP_OUTPUT_PATH / "architecture_info.txt"
 REGISTRY_OUTPUT_PATH = STEP_OUTPUT_PATH / "output_registry"
 
 _CONTAINER_NAME = "agent_base_image_registry_step"
@@ -74,25 +95,6 @@ def main(
         *platform_options,
         str(SOURCE_ROOT)
     ])
-
-    result_image_testing_final_name = f"{result_image_final_name}-testing"
-
-    # subprocess.check_call([
-    #     "docker",
-    #     "buildx",
-    #     "build",
-    #     "-t",
-    #     result_image_testing_final_name,
-    #     "-f",
-    #     f"{SOURCE_ROOT}/agent_build/docker/Dockerfile.base-testing",
-    #     "--push",
-    #     "--build-arg",
-    #     f"BASE_IMAGE={result_image_final_name}",
-    #     "--build-arg",
-    #     f"COVERAGE_VERSION={coverage_version}",
-    #     *platform_options,
-    #     str(SOURCE_ROOT)
-    # ])
 
 
 if __name__ == '__main__':
