@@ -58037,7 +58037,7 @@ async function executeRunner() {
     // runner.
     const output = child_process.execFileSync(
         "python3",
-        [executeStepsRunnerScriptPath, stepsRunnerName, "get-steps-ids"]
+        [executeStepsRunnerScriptPath, stepsRunnerName, "get-cacheable-steps-ids"]
     );
 
     // Read and decode names from json.
