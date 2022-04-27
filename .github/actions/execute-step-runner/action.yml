@@ -6,8 +6,8 @@ inputs:
     description: "Name of the step runner"
     required: true
 
-  cache-dir:
-    description: "Directory where steps cache will be stores."
+  build-root-dir:
+    description: "Directory where runner steps will store their results."
     required: true
 
   cache-version-suffix:

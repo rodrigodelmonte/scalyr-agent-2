@@ -58023,13 +58023,13 @@ async function executeRunner() {
 
     const stepsRunnerName = core.getInput("runner-name");
     const cacheVersionSuffix = core.getInput("cache-version-suffix");
-    const cacheDir = core.getInput("cache-dir");
+    const buildRootDir = core.getInput("build-root-dir");
 
-    if (!fs.existsSync(cacheDir)) {
-        fs.mkdirSync(cacheDir,{recursive: true});
+    if (!fs.existsSync(buildRootDir)) {
+        fs.mkdirSync(buildRootDir,{recursive: true});
     }
 
-    const finalCacheDir = path.join(cacheDir, "step_outputs");
+    const cacheDir = path.join(buildRootDir, "step_outputs");
 
     // Get json list with names of all steps which are needed for this runner.
     const executeStepsRunnerScriptPath = path.join(".github", "actions", "execute-step-runner", "helper.py");
@@ -58050,7 +58050,7 @@ async function executeRunner() {
     for (let id of steps_ids) {
         cacheHits[id] = await checkAndGetCache(
             id,
-            finalCacheDir,
+            cacheDir,
             cacheVersionSuffix
         );
     }
@@ -58069,7 +58069,7 @@ async function executeRunner() {
     for (let id of steps_ids) {
         await checkAndSaveCache(
             id,
-            finalCacheDir,
+            cacheDir,
             cacheHits[steps_ids],
             cacheVersionSuffix,
         );
