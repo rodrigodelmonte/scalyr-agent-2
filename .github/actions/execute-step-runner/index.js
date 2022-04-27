@@ -111,6 +111,8 @@ async function executeRunner() {
         fs.mkdirSync(cacheDir,{recursive: true});
     }
 
+    const finalCacheDir = path.join(cacheDir, "step_outputs");
+
     // Get json list with names of all steps which are needed for this runner.
     const executeStepsRunnerScriptPath = path.join(".github", "actions", "execute-step-runner", "helper.py");
     // Run special github-related helper command which returns names for ids of all steps, which are used in the current
@@ -127,10 +129,10 @@ async function executeRunner() {
     const cacheHits = {};
 
     // Run through steps ids and look if the is any existing cache for them.
-    for (let name of steps_ids) {
-        cacheHits[name] = await checkAndGetCache(
-            name,
-            cacheDir,
+    for (let id of steps_ids) {
+        cacheHits[id] = await checkAndGetCache(
+            id,
+            finalCacheDir,
             cacheVersionSuffix
         );
     }
@@ -144,12 +146,13 @@ async function executeRunner() {
     );
 
     // Run through the cache folder and save any cached directory within, that is not yet cached.
-    const filenames = fs.readdirSync(cacheDir);
-    for (const name of filenames) {
+    //const filenames = fs.readdirSync(finalCacheDir);
+    //for (const name of filenames) {
+    for (let id of steps_ids) {
         await checkAndSaveCache(
-            name,
-            cacheDir,
-            cacheHits[name],
+            id,
+            finalCacheDir,
+            cacheHits[steps_ids],
             cacheVersionSuffix,
         );
     }

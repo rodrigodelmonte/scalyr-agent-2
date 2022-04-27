@@ -6,6 +6,10 @@ inputs:
     description: "Name of the step runner"
     required: true
 
+  cache-dir:
+    description: "Directory where steps cache will be stores."
+    required: true
+
   cache-version-suffix:
     description: "Cache key suffix. Can be changed when it is needed to invalidate the cache."
     required: false
