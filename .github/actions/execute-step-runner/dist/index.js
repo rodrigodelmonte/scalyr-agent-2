@@ -58030,7 +58030,7 @@ async function executeRunner() {
     }
 
     // Get json list with names of all steps which are needed for this runner.
-    const executeStepsRunnerScriptPath = path.join(".github", "actions", "helper.py");
+    const executeStepsRunnerScriptPath = path.join(".github", "actions", "execute-step-runner", "helper.py");
     // Run special github-related helper command which returns names for ids of all steps, which are used in the current
     // runner.
     const output = child_process.execFileSync(
