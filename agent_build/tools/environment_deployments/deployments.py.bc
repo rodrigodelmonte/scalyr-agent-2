@@ -25,7 +25,6 @@ from typing import Union, Optional, List, Dict, Type
 
 from agent_build.tools import common
 from agent_build.tools import constants
-from agent_build.tools import files_checksum_tracker
 from agent_build.tools import build_in_docker
 
 

@@ -78,17 +78,6 @@ class StepCICDSettings:
 
 
 class BuildStep:
-    @abc.abstractmethod
-    def run(self, build_root: pl.Path):
-        pass
-
-    @property
-    @abc.abstractmethod
-    def all_used_cacheable_steps(self) -> List['IntermediateBuildStep']:
-        pass
-
-
-class IntermediateBuildStep(BuildStep):
 
     """
     Base abstraction that represents set of action that has to be performed in order to prepare some environment,
@@ -104,7 +93,7 @@ class IntermediateBuildStep(BuildStep):
     def __init__(
         self,
         name: str = None,
-        dependency_steps: List['IntermediateBuildStep'] = None,
+        dependency_steps: List['BuildStep'] = None,
         additional_settings: Dict[str, str] = None,
         ci_cd_settings: StepCICDSettings = None,
         global_steps_collection: List['BuildStep'] = None
@@ -357,7 +346,7 @@ class IntermediateBuildStep(BuildStep):
         return globs
 
 
-class SimpleBuildStep(IntermediateBuildStep):
+class SimpleBuildStep(BuildStep):
     """
     Base abstraction that represents set of action that has to be performed in order to prepare some environment,
         for example for the build. The deployment step can be performed directly on the current machine or inside the
@@ -368,7 +357,7 @@ class SimpleBuildStep(IntermediateBuildStep):
     def __init__(
         self,
         name: str,
-        base_step: Union['IntermediateBuildStep', str] = None,
+        base_step: Union['BuildStep', str] = None,
         dependency_steps: List['InstallBuildDependenciesStep'] = None,
         additional_settings: Dict[str, str] = None,
         ci_cd_settings: StepCICDSettings = None,
@@ -423,7 +412,7 @@ class DockerImageSpec:
             common.check_call_with_log(["docker", "save", self.name], stdout=f)
 
 
-class ScriptBuildStep(IntermediateBuildStep):
+class ScriptBuildStep(BuildStep):
     """
     Base abstraction that represents set of action that has to be performed in order to prepare some environment,
         for example for the build. The deployment step can be performed directly on the current machine or inside the
@@ -436,8 +425,8 @@ class ScriptBuildStep(IntermediateBuildStep):
         name: str,
         script_path: pl.Path,
         is_dependency_step: bool,
-        base_step: Union['IntermediateBuildStep', "ScriptBuildStep", DockerImageSpec] = None,
-        dependency_steps: List['IntermediateBuildStep'] = None,
+        base_step: Union['BuildStep', "ScriptBuildStep", DockerImageSpec] = None,
+        dependency_steps: List['BuildStep'] = None,
         additional_settings: Dict[str, str] = None,
         ci_cd_settings: StepCICDSettings = None,
         global_steps_collection: List['BuildStep'] = None
@@ -779,26 +768,33 @@ class InstallTestRequirementsDeploymentStep(ScriptBuildStep):
         return globs
 
 
-class FinalStep(BuildStep):
+class StepsRunner:
+    STATIC_STEPS: List['BuildStep'] = []
+    NAME: str
+
     def __init__(
             self,
-            used_steps: List[IntermediateBuildStep]
+            used_steps: List[BuildStep] = None
     ):
-        self._used_steps = used_steps or []
+
+        used_steps = used_steps or []
+        self._used_steps = [
+            *type(self).STATIC_STEPS,
+            *used_steps
+        ]
         self._build_root: Optional[pl.Path] = None
 
-
-    @property
-    def all_used_cacheable_steps(self) -> List[IntermediateBuildStep]:
+    @classmethod
+    def all_used_cacheable_steps(cls) -> List[BuildStep]:
         result_steps = []
-        for s in self._used_steps:
+        for s in cls.STATIC_STEPS:
             result_steps.extend(s.all_used_cacheable_steps)
 
         return result_steps
 
-    @property
-    def all_used_cacheable_steps_ids(self) -> List[str]:
-        return [s.id for s in self.all_used_cacheable_steps]
+    @classmethod
+    def all_used_cacheable_steps_ids(cls) -> List[str]:
+        return [s.id for s in cls.all_used_cacheable_steps()]
 
     @abc.abstractmethod
     def _run(self):

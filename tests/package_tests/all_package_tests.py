@@ -23,11 +23,10 @@ from typing import Dict, List, Type
 
 from agent_build.tools import constants
 from tests.package_tests.internals import docker_test, k8s_test
-from agent_build.tools.environment_deployments import deployments
 from agent_build.tools import build_in_docker
 from agent_build.tools import common
 from agent_build.tools.build_step import SimpleBuildStep, ScriptBuildStep
-from agent_build.package_build_steps import IMAGE_BUILDS, BuildStep, FinalStep
+from agent_build.package_build_steps import IMAGE_BUILDS, BuildStep, StepsRunner, ImageBuild
 
 _PARENT_DIR = pl.Path(__file__).parent
 __SOURCE_ROOT__ = _PARENT_DIR.parent.parent.absolute()
@@ -103,8 +102,8 @@ ALL_PACKAGE_TESTS: Dict[str, "Test"] = {}
 #         return f"{self.package_builder.name}_{self._base_name}".replace("-", "_")
 
 
-class DockerImagePackageTest(FinalStep):
-    BUILD_NAME: str
+class DockerImagePackageTest(StepsRunner):
+    IMAGE_BUILD_CLS: Type[ImageBuild]
     """
     Test for the agent docker images.
     """
@@ -124,8 +123,7 @@ class DockerImagePackageTest(FinalStep):
             by default it is an architecture of the package builder.
         """
 
-        self._build_name = type(self).BUILD_NAME
-        build_cls = IMAGE_BUILDS[self._build_name]
+        self._build_cls = type(self).IMAGE_BUILD_CLS
 
         self._registry_host = "localhost:5050"
         self._tags = ["test"]
@@ -139,9 +137,7 @@ class DockerImagePackageTest(FinalStep):
             push=True
         )
 
-        super().__init__(
-            used_steps=self._build.all_used_cacheable_steps
-        )
+        super().__init__()
 
     def _run(
         self
@@ -279,7 +275,7 @@ class DockerImagePackageTest(FinalStep):
                     [
                         sys.executable,
                         "build_package_new.py",
-                        self._build_name,
+                        self._build.NAME,
                         "--registry",
                         self._registry_host,
                         "--tag",
@@ -304,10 +300,16 @@ class DockerImagePackageTest(FinalStep):
             subprocess.check_call(["docker", "image", "prune", "-f"])
 
 
-DOCKER_IMAGE_TESTS = {}
+DOCKER_IMAGE_TESTS: [str, Type[StepsRunner]] = {}
 for build_name in IMAGE_BUILDS:
-    class ImageTest(DockerImagePackageTest):
-        BUILD_NAME = build_name
+    build_cls = IMAGE_BUILDS[build_name]
 
     test_name = f"{build_name}-test"
+
+    class ImageTest(DockerImagePackageTest):
+        NAME = test_name
+        IMAGE_BUILD_CLS = build_cls
+        STATIC_STEPS = [*build_cls.STATIC_STEPS]
+
+
     DOCKER_IMAGE_TESTS[test_name] = ImageTest

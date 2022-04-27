@@ -1,4 +1,4 @@
-# Docker Image Builder
+# Docker Image StepsRunner
 
 This directory contains image builder - statically defined abstractions that help to build Docker images for tests.
 
