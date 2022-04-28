@@ -58084,8 +58084,9 @@ async function executeRunner() {
 async function run() {
     // Entry function. Just catch any error and pass it to GH Actions.
   try {
-      //await executeRunner();
       console.log('HELLO');
+      await executeRunner();
+      console.log('BYE');
   } catch (error) {
     core.setFailed(error.message);
   }
