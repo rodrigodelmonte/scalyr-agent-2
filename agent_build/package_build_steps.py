@@ -93,6 +93,7 @@ class DockerContainerBaseBuildStep(build_step.ScriptBuildStep):
         _AGENT_REQUIREMENTS_PATH / "compression-requirements.txt",
         _AGENT_REQUIREMENTS_PATH / "docker-image-requirements.txt"
     ]
+    CACHEABLE = True
 
     def __init__(
             self,
