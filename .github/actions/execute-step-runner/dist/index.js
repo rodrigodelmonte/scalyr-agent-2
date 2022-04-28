@@ -58015,6 +58015,8 @@ async function checkAndSaveCache(
 }
 
 async function executeRunner() {
+
+    throw new Error();
     // The main action function. It does the following:
     // 1. Get all ids of the steps of the given runner and then try to load their caches by using that ids.
     // 2. Execute the runner. If there are cache hits that have been done previously, reuse them.
