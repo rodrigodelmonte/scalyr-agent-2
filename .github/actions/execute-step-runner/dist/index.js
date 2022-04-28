@@ -58041,7 +58041,7 @@ async function executeRunner() {
         "python3",
         [executeStepsRunnerScriptPath, stepsRunnerName, "get-cacheable-steps-ids"]
     );
-
+    console.log("RUUN2");
     // Read and decode names from json.
     const json_encoded_step_ids = buffer.Buffer.from(output, 'utf8').toString();
     const steps_ids = JSON.parse(json_encoded_step_ids);
@@ -58057,6 +58057,7 @@ async function executeRunner() {
             cacheVersionSuffix
         );
     }
+    console.log("RUUN3");
 
     // Run the step. Also provide cache directory, if there are some found caches, then the step
     // has to reuse them.
@@ -58065,6 +58066,8 @@ async function executeRunner() {
         [executeStepsRunnerScriptPath, stepsRunnerName, "execute", "--build-root-dir", buildRootDir],
         {stdio: 'inherit'}
     );
+
+    console.log("RUUN4");
 
     // Run through the cache folder and save any cached directory within, that is not yet cached.
     //const filenames = fs.readdirSync(finalCacheDir);
@@ -58078,6 +58081,7 @@ async function executeRunner() {
             cacheVersionSuffix,
         );
     }
+        console.log("RUUN5");
 }
 
 
