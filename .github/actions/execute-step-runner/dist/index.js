@@ -58048,6 +58048,7 @@ async function executeRunner() {
 
     // Run through steps ids and look if the is any existing cache for them.
     for (let id of steps_ids) {
+        console.log(id);
         cacheHits[id] = await checkAndGetCache(
             id,
             cacheDir,
@@ -58067,6 +58068,7 @@ async function executeRunner() {
     //const filenames = fs.readdirSync(finalCacheDir);
     //for (const name of filenames) {
     for (let id of steps_ids) {
+        console.log(id);
         await checkAndSaveCache(
             id,
             cacheDir,
