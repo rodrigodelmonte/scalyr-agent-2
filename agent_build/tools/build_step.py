@@ -126,13 +126,11 @@ class BuildStep:
         self._tracked_file_paths = None
         self._base_step: Optional[BuildStep] = None
 
-        self._ci_cd_settings = ci_cd_settings or StepCICDSettings()
-
         # Directory path where this step (and maybe its nested steps) will store its result.
         # Initialized only during the run of the step.
         self._build_root: Optional[pl.Path] = None
 
-        if global_steps_collection is not None and self._ci_cd_settings.cacheable:
+        if global_steps_collection is not None and type(self).CACHEABLE:
             global_steps_collection.append(self)
 
 
@@ -283,10 +281,14 @@ class BuildStep:
             result_steps.extend(self._base_step.all_used_cacheable_steps)
 
         # Add this step itself, but only if it cacheable.
-        if self._ci_cd_settings.cacheable:
+        if type(self).CACHEABLE:
             result_steps.append(self)
 
         return result_steps
+
+    @property
+    def all_used_cacheable_steps_ids(self) -> List[str]:
+        return [s.id for s in self.all_used_cacheable_steps]
 
     def _check_for_cached_result(self):
         return self.output_directory.exists()

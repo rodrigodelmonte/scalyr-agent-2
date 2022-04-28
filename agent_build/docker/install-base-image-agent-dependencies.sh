@@ -37,5 +37,8 @@ pip3 install --upgrade pip
 PATH="/root/.cargo/bin:${PATH}"
 pip3 --no-cache-dir install --root /tmp/dependencies -r agent_build/requirement-files/docker-image-requirements.txt
 
+if [ -n "$TESTING" ]; then
+  pip3 --no-cache-dir install --root /tmp/dependencies coverage==4.5.4
+fi
 # Clean up files which were installed to use manylinux2014 workaround
 rm /usr/local/lib/python3.8/_manylinux.py

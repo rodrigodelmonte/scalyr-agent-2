@@ -25,7 +25,6 @@ import pytest
 
 from agent_build.tools import constants
 from agent_build.tools import common
-from agent_build.tools.environment_deployments import deployments
 from agent_build.tools import build_step
 from agent_build.tools.build_step import DockerImageSpec
 
@@ -98,23 +97,26 @@ def test_base_step(
         base_step_result_file_path = tmp_path / "base.txt"
         docker_image = None
 
-    #build_root = pl.Path("/Users/arthur/work/agents/scalyr-agent-2/build_test")
-    build_root = tmp_path / "build_root"
-    base_step = build_step.ScriptBuildStep(
+    build_root = pl.Path("/Users/arthur/work/agents/scalyr-agent-2/build_test")
+    #build_root = tmp_path / "build_root"
+
+    class TestBaseStep(build_step.ScriptBuildStep):
+        CACHEABLE = True
+
+    base_step = TestBaseStep(
         name="BaseTestStep",
         script_path=_BASE_STEP_SCRIPTS[script_type],
-        build_root=build_root,
         is_dependency_step=False,
         base_step=docker_image,
         additional_settings={
             "INPUT": "BASE",
             "BASE_RESULT_FILE_PATH": str(base_step_result_file_path)
-        }
+        },
     )
 
     # Check ids of all steps that are used by base step.
     # That has to be only the id of the base step itself.
-    assert base_step.all_used_cacheable_steps == [base_step.id]
+    assert base_step.all_used_cacheable_steps_ids == [base_step.id]
 
     if dependency_in_docker:
         dependency_docker_image = _get_docker_image_spec_or_none(
@@ -123,11 +125,13 @@ def test_base_step(
     else:
         dependency_docker_image = None
 
+    class TestDependencyStep(build_step.ScriptBuildStep):
+        CACHEABLE = True
+
     # Create a dependency step. It has to produce a file that has to be used in the final step.
-    dependency_step = build_step.ScriptBuildStep(
+    dependency_step = TestDependencyStep(
         name="DependencyStep",
         script_path=_DEPENDENCY_STEP_SCRIPTS[dependency_script_type],
-        build_root=build_root,
         is_dependency_step=True,
         base_step=dependency_docker_image,
         additional_settings={
@@ -136,12 +140,14 @@ def test_base_step(
     )
     # Check all used ids for the dependency step.
     # It does not have any previous steps, so it contain only its own id.
-    assert dependency_step.all_used_cacheable_steps == [dependency_step.id]
+    assert dependency_step.all_used_cacheable_steps_ids == [dependency_step.id]
 
-    final_step = build_step.ScriptBuildStep(
+    class FinalStep(build_step.ScriptBuildStep):
+        CACHEABLE = True
+
+    final_step = FinalStep(
         name="FinalStep",
         script_path=_FINAL_STEP_SCRIPTS[script_type],
-        build_root=build_root,
         base_step=base_step,
         is_dependency_step=True,
         dependency_steps=[dependency_step],
@@ -152,13 +158,15 @@ def test_base_step(
     )
 
     # Check all ids. For now, the result also has to contain ids of all previous steps.
-    assert final_step.all_used_cacheable_steps == [
-        *dependency_step.all_used_cacheable_steps,
-        *base_step.all_used_cacheable_steps,
+    assert final_step.all_used_cacheable_steps_ids == [
+        *dependency_step.all_used_cacheable_steps_ids,
+        *base_step.all_used_cacheable_steps_ids,
         final_step.id
     ]
 
-    final_step.run()
+    final_step.run(
+        build_root=build_root
+    )
 
     if in_docker:
         # If base step run in docker we check its result file within the result image.

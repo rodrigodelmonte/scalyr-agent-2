@@ -145,8 +145,8 @@ class DockerImageType(enum.Enum):
 # Set of docker platforms that are supported by prod image.
 _PROD_DOCKER_IMAGES_PLATFORMS = [
     constants.Architecture.X86_64.as_docker_platform,
-    constants.Architecture.ARM64.as_docker_platform,
-    constants.Architecture.ARMV7.as_docker_platform
+    # constants.Architecture.ARM64.as_docker_platform,
+    # constants.Architecture.ARMV7.as_docker_platform
 ]
 
 _AGENT_BASE_IMAGE_BUILDER_STEPS = {
@@ -185,12 +185,14 @@ class ImageBuild(StepsRunner):
         user: str = None,
         tags: List[str] = None,
         push: bool = False,
-        platforms_to_build: List[str] = None
+        platforms_to_build: List[str] = None,
+        testing: bool = False
     ):
         self.registry = registry
         self.user = user
         self.tags = tags or []
         self.push = push
+        self._testing = testing
 
         base_image_step = type(self).AGENT_BASE_IMAGE_BUILDER_STEP
 
@@ -225,6 +227,9 @@ class ImageBuild(StepsRunner):
         base_image_registry_port = 5003
         base_image_name = f"agent_base_image:{self._base_image_step.base_image_distro_type.name.lower()}"
         base_image_full_name = f"localhost:{base_image_registry_port}/{base_image_name}"
+
+        if self._testing:
+            base_image_full_name = f"{base_image_full_name}-testing"
 
         tag_options = []
         for image_name in _DOCKER_IMAGE_TYPES_TO_IMAGE_RESULT_NAMES[type(self).DOCKER_IMAGE_TYPE]:
@@ -280,6 +285,7 @@ class ImageBuild(StepsRunner):
             subprocess.check_call([
                 *command_options
             ])
+            a=10
 
 
 # Final collection of the docker image builds, where key - unique name of the build

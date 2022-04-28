@@ -16,7 +16,7 @@
 """
 This script is used in the build step that builds base image for Agent's Docker image.
 """
-
+import time
 from typing import List
 import os
 import subprocess
@@ -68,50 +68,43 @@ def main(
     # # it will be needed to the final image builder step.
     # ARCHITECTURE_INFO_FILE_OUTPUT_PATH.write_text(platforms_to_build)
 
-    result_image_final_name = f"localhost:5005/{result_image_name}"
-
     platform_options = []
 
     for p in platforms_to_build:
         platform_options.append("--platform"),
         platform_options.append(p)
 
-    subprocess.check_call([
-        "docker",
-        "buildx",
-        "build",
-        "-t",
-        result_image_final_name,
-        "-f",
-        f"{SOURCE_ROOT}/agent_build/docker/Dockerfile.base",
-        "--push",
-        "--build-arg",
-        f"PYTHON_BASE_IMAGE_TYPE={python_base_image_type}",
-        "--build-arg",
-        f"PYTHON_BASE_IMAGE_NAME={python_base_image_name}",
-        "--build-arg",
-        f"COVERAGE_VERSION={coverage_version}",
-        *platform_options,
-        str(SOURCE_ROOT)
-    ])
+    def build(testing: bool):
 
-    # Build testing version of the base image.
-    subprocess.check_call([
-        "docker",
-        "buildx",
-        "build",
-        "-t",
-        f"{result_image_final_name}-testing",
-        "-f",
-        f"{SOURCE_ROOT}/agent_build/docker/Dockerfile.base-testing",
-        "--push",
-        "--build-arg",
-        f"BASE_IMAGE={result_image_final_name}",
-        "--build-arg",
-        f"COVERAGE_VERSION={coverage_version}",
-        *platform_options,
-        str(SOURCE_ROOT)
-    ])
+        testing_args = []
+        result_image_final_name = f"localhost:5005/{result_image_name}"
+        if testing:
+            testing_args = [
+                "--build-arg",
+                f"TESTING=1"
+            ]
+            result_image_final_name = f"{result_image_final_name}-testing"
+
+        subprocess.check_call([
+            "docker",
+            "buildx",
+            "build",
+            "-t",
+            result_image_final_name,
+            "-f",
+            f"{SOURCE_ROOT}/agent_build/docker/Dockerfile.base",
+            "--push",
+            "--build-arg",
+            f"PYTHON_BASE_IMAGE_TYPE={python_base_image_type}",
+            "--build-arg",
+            f"PYTHON_BASE_IMAGE_NAME={python_base_image_name}",
+            *testing_args,
+            *platform_options,
+            str(SOURCE_ROOT)
+        ])
+
+    build(False)
+    build(True)
 
 
 if __name__ == '__main__':

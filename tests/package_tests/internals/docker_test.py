@@ -36,7 +36,7 @@ def build_agent_image(builder_path: pl.Path):
 def _test(
     image_name: str,
     container_name: str,
-    architecture: constants.Architecture,
+    docker_platform: str,
     scalyr_api_key: str,
 ):
 
@@ -59,7 +59,7 @@ def _test(
             "-v",
             "/var/lib/docker/containers:/var/lib/docker/containers",
             "--platform",
-            architecture.as_docker_platform,
+            docker_platform,
             image_name,
         ]
     )
@@ -121,18 +121,18 @@ def _test(
 
 def run(
     image_name: str,
-    architecture: constants.Architecture,
+    docker_platform: str,
     scalyr_api_key: str,
     name_suffix: str,
 ):
     """
     :param image_name: Full name of the image to test.
-    :param architecture: Architecture of the image to test.
+    :param docker_platform: Architecture of the image to test.
     :param scalyr_api_key: Scalyr API key.
     :param name_suffix: Additional suffix to the agent instance name.
     """
 
-    container_name = f"{image_name}_{architecture.value}_test"
+    container_name = f"{image_name}_{docker_platform}_test"
 
     container_name = f"{container_name}{name_suffix}"
 
@@ -150,7 +150,7 @@ def run(
         _test(
             image_name=image_name,
             container_name=container_name,
-            architecture=architecture,
+            docker_platform=docker_platform,
             scalyr_api_key=scalyr_api_key,
         )
     finally:

@@ -21,25 +21,25 @@ MAINTAINER Scalyr Inc <support@scalyr.com>
 
 ARG PYTHON_BASE_IMAGE_NAME
 ARG TARGETVARIANT
-ARG COVERAGE_VERSION
+ARG TESTING
+
+ADD agent_build/docker/install-base-image-build-dependencies.sh agent_build/docker/install-base-image-build-dependencies.sh
+RUN PYTHON_BASE_IMAGE_TYPE=$PYTHON_BASE_IMAGE_TYPE sh agent_build/docker/install-base-image-build-dependencies.sh
+
+ADD agent_build/docker/install-base-image-rust.sh agent_build/docker/install-base-image-rust.sh
+RUN TARGETVARIANT=$TARGETVARIANT PYTHON_BASE_IMAGE_TYPE=$PYTHON_BASE_IMAGE_TYPE sh agent_build/docker/install-base-image-rust.sh
 
 ADD agent_build/requirement-files/docker-image-requirements.txt agent_build/requirement-files/docker-image-requirements.txt
 ADD agent_build/requirement-files/compression-requirements.txt agent_build/requirement-files/compression-requirements.txt
 ADD agent_build/requirement-files/main-requirements.txt agent_build/requirement-files/main-requirements.txt
 
-ADD agent_build/docker/install-base-image-build-dependencies.sh agent_build/docker/install-base-image-build-dependencies.sh
-ADD agent_build/docker/install-base-image-rust.sh agent_build/docker/install-base-image-rust.sh
 ADD agent_build/docker/install-base-image-agent-dependencies.sh agent_build/docker/install-base-image-agent-dependencies.sh
-
-RUN PYTHON_BASE_IMAGE_TYPE=$PYTHON_BASE_IMAGE_TYPE sh agent_build/docker/install-base-image-build-dependencies.sh
-RUN TARGETVARIANT=$TARGETVARIANT PYTHON_BASE_IMAGE_TYPE=$PYTHON_BASE_IMAGE_TYPE sh agent_build/docker/install-base-image-rust.sh
-RUN TARGETVARIANT=$TARGETVARIANT PYTHON_BASE_IMAGE_TYPE=$PYTHON_BASE_IMAGE_TYPE COVERAGE_VERSION=$COVERAGE_VERSIONsh \
-    agent_build/docker/install-base-image-agent-dependencies.sh
+RUN TARGETVARIANT=$TARGETVARIANT PYTHON_BASE_IMAGE_TYPE=$PYTHON_BASE_IMAGE_TYPE TESTING=$TESTING sh agent_build/docker/install-base-image-agent-dependencies.sh
 
 # Install packages and tools that will be required during the final image build.
 FROM base as ready-base
 MAINTAINER Scalyr Inc <support@scalyr.com>
 
 # Copy Agent's Python dependencies, so they also can be used in the final image build.
-COPY --from=scalyr-dependencies  /tmp/dependencies/ /tmp/dependencies/
+COPY --from=scalyr-dependencies  /tmp/dependencies/. /tmp/dependencies
 WORKDIR /

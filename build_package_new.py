@@ -124,6 +124,12 @@ if __name__ == "__main__":
                 help="Comma delimited list of platforms to build (and optionally push) the image for.",
             )
 
+            package_parser.add_argument(
+                "--testing",
+                action="store_true",
+                required=False
+            )
+
         else:
 
             # Add output dir argument. It is required only for non-docker image builds.
@@ -162,7 +168,8 @@ if __name__ == "__main__":
             user=args.user,
             tags=args.tag or [],
             push=args.push,
-            platforms_to_build=platforms_to_build
+            platforms_to_build=platforms_to_build,
+            testing=args.testing
         )
         if args.show_all_used_steps_ids:
             print(json.dumps(build.all_used_cacheable_steps_ids))
