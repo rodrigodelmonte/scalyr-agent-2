@@ -98,7 +98,6 @@ async function checkAndSaveCache(
 
 async function executeRunner() {
 
-    throw new Error();
     // The main action function. It does the following:
     // 1. Get all ids of the steps of the given runner and then try to load their caches by using that ids.
     // 2. Execute the runner. If there are cache hits that have been done previously, reuse them.
@@ -119,6 +118,7 @@ async function executeRunner() {
     const executeStepsRunnerScriptPath = path.join(".github", "actions", "execute-step-runner", "helper.py");
     // Run special github-related helper command which returns names for ids of all steps, which are used in the current
     // runner.
+    console.log("RUUN");
     const output = child_process.execFileSync(
         "python3",
         [executeStepsRunnerScriptPath, stepsRunnerName, "get-cacheable-steps-ids"]
